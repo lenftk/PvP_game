@@ -4,32 +4,32 @@ let p1, p2, projectiles = [], visuals = [], particles = [], mapDebris = [], game
 let screenShake = 0, globalFrame = 0, selectTimer = null, selectTimeLeft = SELECT_TIME, mySelectedChar = null, rematchState = { p1: false, p2: false };
 
 function startGameMode(mode) {
-    initAudio(); 
-    gameMode = mode; 
-    isOnline = (mode === 'online'); 
+    initAudio();
+    gameMode = mode;
+    isOnline = (mode === 'online');
     resetGameSession();
-    
-    inputState = {}; 
-    onlineInput = { p1: {}, p2: {} };
-    
-    if(typeof soundQueue !== 'undefined') soundQueue = [];
 
-    document.getElementById('main-menu').classList.add('hidden'); 
-    document.getElementById('online-menu').classList.add('hidden'); 
+    inputState = {};
+    onlineInput = { p1: {}, p2: {} };
+
+    if (typeof soundQueue !== 'undefined') soundQueue = [];
+
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('online-menu').classList.add('hidden');
     document.getElementById('char-select-screen').classList.remove('hidden');
-    
+
     document.getElementById('overlay').style.display = 'none';
     document.getElementById('overlay-subtext').style.display = 'none';
-    
+
     if (mode === 'local') {
-        document.getElementById('select-title').innerText = "PLAYER 1 선택"; 
-        document.getElementById('select-status').innerText = ""; 
-        document.getElementById('select-timer').style.display = 'none'; 
+        document.getElementById('select-title').innerText = "PLAYER 1 선택";
+        document.getElementById('select-status').innerText = "";
+        document.getElementById('select-timer').style.display = 'none';
         turn = 1;
     } else {
-        document.getElementById('select-title').innerText = "내 캐릭터 선택"; 
-        document.getElementById('select-status').innerText = "상대방 기다리는 중..."; 
-        document.getElementById('select-timer').style.display = 'block'; 
+        document.getElementById('select-title').innerText = "내 캐릭터 선택";
+        document.getElementById('select-status').innerText = "상대방 기다리는 중...";
+        document.getElementById('select-timer').style.display = 'block';
         startSelectTimer();
     }
 }
@@ -42,42 +42,42 @@ function resetGameSession() {
 
 function startCountdown() {
     initAudio();
-    document.getElementById('main-menu').classList.add('hidden'); 
-    document.getElementById('online-menu').classList.add('hidden'); 
-    document.getElementById('host-wait-screen').classList.add('hidden'); 
-    document.getElementById('char-select-screen').classList.add('hidden'); 
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('online-menu').classList.add('hidden');
+    document.getElementById('host-wait-screen').classList.add('hidden');
+    document.getElementById('char-select-screen').classList.add('hidden');
     document.getElementById('map-select-screen').classList.add('hidden');
-    
-    document.getElementById('hud').style.display = 'flex'; 
-    document.getElementById('gameCanvas').style.display = 'block'; 
+
+    document.getElementById('hud').style.display = 'flex';
+    document.getElementById('gameCanvas').style.display = 'block';
     document.getElementById('overlay').style.display = 'flex';
-    
+
     initGameEntities();
-    
-    let count = 3; 
-    const t = document.getElementById('overlay-text'); 
+
+    let count = 3;
+    const t = document.getElementById('overlay-text');
     t.innerText = count;
-    
+
     const iv = setInterval(() => {
-        count--; 
+        count--;
         if (count > 0) t.innerText = count;
         else if (count === 0) { t.innerText = "FIGHT!"; t.style.color = "red"; }
-        else { 
-            clearInterval(iv); 
-            document.getElementById('overlay').style.display = 'none'; 
-            gameRunning = true; 
-            startGameLoop(); 
+        else {
+            clearInterval(iv);
+            document.getElementById('overlay').style.display = 'none';
+            gameRunning = true;
+            startGameLoop();
         }
     }, 1000);
 }
 
 function initGameEntities() {
-    p1 = new Fighter(true, p1Char); 
+    p1 = new Fighter(true, p1Char);
     p2 = new Fighter(false, p2Char);
-    document.getElementById('p1-name-display').innerText = `P1: ${p1.name}`; 
+    document.getElementById('p1-name-display').innerText = `P1: ${p1.name}`;
     document.getElementById('p2-name-display').innerText = `P2: ${p2.name}`;
-    projectiles = []; visuals = []; particles = []; mapDebris = []; 
-    globalFrame = 0; screenShake = 0; 
+    projectiles = []; visuals = []; particles = []; mapDebris = [];
+    globalFrame = 0; screenShake = 0;
     inputState = {}; onlineInput = { p1: {}, p2: {} };
 }
 
@@ -86,38 +86,30 @@ function startGameLoop() {
     gameInterval = setInterval(() => {
         if (!gameRunning) return;
         globalFrame++;
-        
-        // 호스트 혹은 로컬만 로직 계산
-        if (!isOnline || isHost) { 
-            updateGameLogic(); 
-            updateMapGimmicks(); 
+
+        if (!isOnline || isHost) {
+            updateGameLogic();
+            updateMapGimmicks();
         }
 
-        // 렌더링 및 동기화
         if (!isOnline || isHost) {
             renderGame();
-            
-            // 호스트인 경우 클라이언트에게 스냅샷 전송
+
             if (isHost && conn && conn.open) {
                 const snapshot = {
-                    p1: getEntityData(p1), 
-                    p2: getEntityData(p2), 
+                    p1: getEntityData(p1),
+                    p2: getEntityData(p2),
                     projs: projectiles.map(p => getProjData(p)),
-                    parts: particles, 
-                    vis: visuals, 
-                    debris: mapDebris, 
+                    parts: particles,
+                    vis: visuals,
+                    debris: mapDebris,
                     shake: screenShake,
-                    
-                    // [추가] 맵 플랫폼(구름) 위치 동기화
                     platforms: selectedMap.platforms,
-                    
-                    // [추가] 사운드 동기화
                     sfx: (typeof soundQueue !== 'undefined') ? soundQueue : []
                 };
                 conn.send({ type: 'snapshot', state: snapshot });
-                
-                // 전송 후 사운드 큐 비움
-                if(typeof soundQueue !== 'undefined') soundQueue = [];
+
+                if (typeof soundQueue !== 'undefined') soundQueue = [];
             }
         }
     }, 1000 / FPS);
@@ -128,25 +120,25 @@ function updateGameLogic() {
     if (gameMode === 'local') {
         for (let act in currentKeys) if (inputState[currentKeys[act]]) p1Input[act] = true;
         for (let act in KEYS_P2) if (inputState[KEYS_P2[act]] || inputState[KEYS_P2[act + '2']]) p2Input[act] = true;
-    } else { 
-        p1Input = onlineInput.p1; 
-        p2Input = onlineInput.p2; 
+    } else {
+        p1Input = onlineInput.p1;
+        p2Input = onlineInput.p2;
     }
-    
-    p1.update(p2, p1Input); 
+
+    p1.update(p2, p1Input);
     p2.update(p1, p2Input);
-    
+
     for (let i = projectiles.length - 1; i >= 0; i--) {
         const keep = projectiles[i] instanceof HitBox ? projectiles[i].update(projectiles[i].owner.isP1 ? p2 : p1) : (projectiles[i].update(projectiles[i].owner.isP1 ? p2 : p1), projectiles[i].active);
         if ((projectiles[i] instanceof Projectile && (projectiles[i].life <= 0 || !projectiles[i].active)) || (projectiles[i] instanceof HitBox && !keep)) projectiles.splice(i, 1);
     }
     for (let i = particles.length - 1; i >= 0; i--) { particles[i].x += particles[i].vx; particles[i].y += particles[i].vy; particles[i].life -= 0.05; if (particles[i].life <= 0) particles.splice(i, 1); }
     for (let i = visuals.length - 1; i >= 0; i--) { visuals[i].y--; visuals[i].life--; if (visuals[i].life <= 0) visuals.splice(i, 1); }
-    
-    if (p1.hp <= 0 || p2.hp <= 0) { 
-        playSfx('win'); 
-        const winner = p1.hp > 0 ? "PLAYER 1 WIN!" : (p2.hp > 0 ? "PLAYER 2 WIN!" : "DRAW"); 
-        gameOver(winner); 
+
+    if (p1.hp <= 0 || p2.hp <= 0) {
+        playSfx('win');
+        const winner = p1.hp > 0 ? "PLAYER 1 WIN!" : (p2.hp > 0 ? "PLAYER 2 WIN!" : "DRAW");
+        gameOver(winner);
     }
 }
 
@@ -212,31 +204,30 @@ function quitToMainMenu() { if (isOnline && conn && conn.open) { conn.send({ typ
 function checkRematch() {
     if (!isHost) return;
     let statusMsg = "";
-    
-    if (rematchState.p1 && rematchState.p2) { 
-        // 양쪽 다 수락함 -> 캐릭터 선택으로 이동
-        conn.send({ type: 'start_char_select' }); 
-        startGameMode('online'); 
+
+    if (rematchState.p1 && rematchState.p2) {
+        conn.send({ type: 'start_char_select' });
+        startGameMode('online');
     }
-    else if (rematchState.p1) statusMsg = "호스트가 다시하기를 원합니다."; 
+    else if (rematchState.p1) statusMsg = "호스트가 다시하기를 원합니다.";
     else if (rematchState.p2) statusMsg = "상대방이 다시하기를 원합니다.";
-    
-    if (statusMsg) { 
-        document.getElementById('overlay-subtext').innerText = statusMsg; 
-        document.getElementById('overlay-subtext').style.display = 'block'; 
-        conn.send({ type: 'rematch_status', msg: statusMsg }); 
+
+    if (statusMsg) {
+        document.getElementById('overlay-subtext').innerText = statusMsg;
+        document.getElementById('overlay-subtext').style.display = 'block';
+        conn.send({ type: 'rematch_status', msg: statusMsg });
     }
 }
 
-function getEntityData(e) { 
-    return { 
-        x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp, 
-        facing: e.facing, color: e.color, w: e.w, h: e.h, 
+function getEntityData(e) {
+    return {
+        x: e.x, y: e.y, hp: e.hp, maxHp: e.maxHp,
+        facing: e.facing, color: e.color, w: e.w, h: e.h,
         status: e.status, cd: e.cd,
         vx: e.vx,
         isGrounded: e.isGrounded,
         animFrame: e.animFrame
-    }; 
+    };
 }
 
 function getProjData(p) { return { x: p.x, y: p.y, w: p.w, h: p.h, color: p.color, facing: p.facing, visualType: p.info.visual, age: p.age, visualLife: p.visualLife, isProj: (p instanceof Projectile), trail: p.trail }; }

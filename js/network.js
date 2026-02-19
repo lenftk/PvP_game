@@ -64,23 +64,23 @@ function handleClientData(connection, data) {
     if (data.type === 'auth_ok') {
         conn = connection; isHost = false; myPlayerIndex = 1;
         msg("접속 성공! 대기 중...");
-    } 
-    else if (data.type === 'auth_fail') { 
-        alert("비밀번호가 틀렸습니다!"); connection.close(); 
     }
-    else if (data.type === 'start_char_select') { 
+    else if (data.type === 'auth_fail') {
+        alert("비밀번호가 틀렸습니다!"); connection.close();
+    }
+    else if (data.type === 'start_char_select') {
         document.getElementById('overlay').style.display = 'none';
-        startGameMode('online'); 
+        startGameMode('online');
     }
-    else if (data.type === 'start_game') { 
-        p1Char = data.p1; p2Char = data.p2; selectedMap = MAP_DATA[data.mapIdx]; 
-        startCountdown(); 
+    else if (data.type === 'start_game') {
+        p1Char = data.p1; p2Char = data.p2; selectedMap = MAP_DATA[data.mapIdx];
+        startCountdown();
     }
     else if (data.type === 'snapshot') { renderSnapshot(data.state); }
     else if (data.type === 'gameover') { showGameOver(data.winner); }
-    else if (data.type === 'rematch_status') { 
-        document.getElementById('overlay-subtext').innerText = data.msg; 
-        document.getElementById('overlay-subtext').style.display = 'block'; // 메시지 표시
+    else if (data.type === 'rematch_status') {
+        document.getElementById('overlay-subtext').innerText = data.msg;
+        document.getElementById('overlay-subtext').style.display = 'block';
     }
     else if (data.type === 'quit_to_menu') { alert("상대방이 나갔습니다."); location.reload(); }
 }

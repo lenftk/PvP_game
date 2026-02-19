@@ -1,5 +1,3 @@
-/* js/classes.js */
-
 class Fighter {
     constructor(isP1, charKey) {
         const d = CHAR_DATA[charKey];
@@ -19,23 +17,21 @@ class Fighter {
         this.vy = 0;
         this.facing = isP1 ? 1 : -1;
         this.cd = { e: 0, r: 0, s: 0 };
-        
-        // 상태이상 목록 (bleed, globalFreeze 등 추가)
-        this.status = { 
-            root: 0, slow: 0, confuse: 0, brainFreeze: 0, vuln: 0, 
-            def: 0, invuln: 0, dmgBuff: 0, hiddenHP: 0, reflect: 0, 
+
+        this.status = {
+            root: 0, slow: 0, confuse: 0, brainFreeze: 0, vuln: 0,
+            def: 0, invuln: 0, dmgBuff: 0, hiddenHP: 0, reflect: 0,
             painJump: 0, dot_ms: 0, grabbed: 0,
-            bleed: 0, speedBuff: 0, globalFreeze: 0 
+            bleed: 0, speedBuff: 0, globalFreeze: 0
         };
-        
+
         this.grabber = null;
         this.grabSpeed = 0;
-        
+
         this.passive = d.passive || null;
         this.ehCharge = 0;
         this.isGrounded = false;
-        
-        // 이미지 로딩
+
         this.sprites = {};
         this.loaded = false;
         this.animFrame = 0;
@@ -53,26 +49,21 @@ class Fighter {
     }
 
     update(opp, input) {
-        // 상태 및 쿨타임 감소
         for (let k in this.status) if (this.status[k] > 0) this.status[k]--;
         for (let k in this.cd) if (this.cd[k] > 0) this.cd[k] -= 1 / 60;
-        
-        // MS DoT
+
         if (this.status.dot_ms > 0 && globalFrame % 30 === 0) this.hit(1, null, 0);
 
-        // ★ DY 궁극기: 필드 전체 냉기 (1초마다 데미지)
         if (this.status.globalFreeze > 0 && globalFrame % 60 === 0) {
             opp.hit(4, null, 0);
             visuals.push({ t: "❄️", x: opp.x, y: opp.y - 40, life: 30, c: "cyan" });
         }
 
-        // ★ DY 2스킬: 출혈 (움직이면 데미지)
         if (this.status.bleed > 0 && Math.abs(this.vx) > 0.1 && globalFrame % 15 === 0) {
             this.hit(2, null, 0);
             visuals.push({ t: "🩸", x: this.x, y: this.y - 20, life: 30, c: "red" });
         }
 
-        // BJ 잡기 로직
         if (this.status.grabbed > 0 && this.grabber) {
             const dx = this.grabber.x - this.x;
             const dy = this.grabber.y - this.y;
@@ -84,14 +75,13 @@ class Fighter {
                 this.x += Math.cos(angle) * this.grabSpeed;
                 this.y += Math.sin(angle) * this.grabSpeed;
                 this.vx = 0; this.vy = 0;
-                return; 
+                return;
             }
         }
 
-        // 이동 로직
         let spd = this.speed;
         if (this.status.slow > 0) spd *= 0.5;
-        if (this.status.speedBuff > 0) spd *= 1.2; // DY 이속 버프
+        if (this.status.speedBuff > 0) spd *= 1.2;
 
         this.vx = 0;
         let l = input.left, r = input.right;
@@ -120,7 +110,7 @@ class Fighter {
         if (input.s) this.skill('s', opp);
 
         this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
-        
+
         this.isGrounded = false;
         if (this.y + this.h > GROUND_Y) { this.y = GROUND_Y - this.h; this.vy = 0; this.isGrounded = true; }
         if (selectedMap.platforms && this.vy >= 0) {
@@ -149,14 +139,13 @@ class Fighter {
 
         const s = this.skills[key];
 
-        // NH2 S스킬: 사용 시 체력 회복 +20
         if (this.charKey === 'NH2' && key === 's') {
             const heal = 20;
             this.hp = Math.min(this.hp + heal, this.maxHp);
             visuals.push({ t: `+${heal}HP`, x: this.x, y: this.y - 40, life: 60, c: "lime" });
-            try { playSfx('heal'); } catch (e) {}
+            try { playSfx('heal'); } catch (e) { }
         }
-        
+
         if (s.type === 'heal' || s.type === 'hp_based_nuke') {
             if (opp.charKey === 'NH2' || opp.passive === 'nh2_passive') {
                 let healAmt = (s.type === 'heal' ? s.val || 10 : (this.maxHp - this.hp) * 0.5);
@@ -165,7 +154,7 @@ class Fighter {
                 visuals.push({ t: `NH2 CD -${reduction.toFixed(1)}`, x: opp.x, y: opp.y - 40, life: 40, c: "lime" });
             }
         }
-        
+
         if (s.type === 'passive_desc') return;
 
         this.cd[key] = s.cd;
@@ -177,7 +166,6 @@ class Fighter {
         const cx = this.x + this.w / 2, cy = this.y + this.h / 2;
 
         if (s.type === 'gamble_cd') {
-            // ZH V2 1스킬: 도박
             setTimeout(() => visuals.push({ t: "3", x: this.x, y: this.y - 50, life: 30, c: "white" }), 0);
             setTimeout(() => visuals.push({ t: "2", x: this.x, y: this.y - 50, life: 30, c: "white" }), 500);
             setTimeout(() => visuals.push({ t: "1", x: this.x, y: this.y - 50, life: 30, c: "white" }), 1000);
@@ -195,18 +183,16 @@ class Fighter {
             }, 1500);
 
         } else if (s.type === 'delayed_homing') {
-            // ZH V2 궁극기
             opp.hit(0, s.effect, s.time);
             visuals.push({ t: "LOCK ON!", x: this.x, y: this.y - 50, life: 120, c: "red" });
             setTimeout(() => {
                 if (!gameRunning) return;
-                const fireX = this.x + this.w/2; const fireY = this.y + this.h/2;
+                const fireX = this.x + this.w / 2; const fireY = this.y + this.h / 2;
                 projectiles.push(new Projectile(fireX, fireY, this.facing * 8, true, this, dmg, { visual: 'bullet' }, opp));
                 visuals.push({ t: "FIRE!", x: this.x, y: this.y - 50, life: 40, c: "red" });
             }, 2000);
 
         } else if (s.type === 'global_burn_buff') {
-            // DY 궁극기 (냉기)
             this.status.speedBuff = s.buffTime;
             this.status.globalFreeze = s.buffTime;
             visuals.push({ t: "❄️FREEZE FIELD❄️", x: this.x, y: this.y - 50, life: 60, c: "cyan" });
@@ -215,9 +201,9 @@ class Fighter {
             let hx = (this.facing === 1) ? cx : cx - s.w;
             if (this.charKey === 'JH' && key === 'r') {
                 const distX = Math.abs(opp.x - this.x); const distY = Math.abs(opp.y - this.y);
-                if (distX < s.w && distY < s.h) { hx = opp.x + (opp.w/2) - (s.w/2); }
+                if (distX < s.w && distY < s.h) { hx = opp.x + (opp.w / 2) - (s.w / 2); }
             }
-            const hy = cy - s.h / 2; 
+            const hy = cy - s.h / 2;
             projectiles.push(new HitBox(hx, hy, s.w, s.h, s.time || 15, this, dmg, s, s.dot));
 
         } else if (s.type === 'grab_projectile') {
@@ -236,7 +222,7 @@ class Fighter {
             const interval = setInterval(() => {
                 if (!gameRunning || count >= s.count) { clearInterval(interval); return; }
                 let info = { ...s, effect: (count === 0 ? s.firstEffect : null), time: (count === 0 ? s.firstTime : 0), visual: JH_LETTERS[count] };
-                projectiles.push(new Projectile(this.x + this.w / 2, this.y + this.h / 2, this.facing * 9, true, this, (count===0?0:s.dmg), info, opp));
+                projectiles.push(new Projectile(this.x + this.w / 2, this.y + this.h / 2, this.facing * 9, true, this, (count === 0 ? 0 : s.dmg), info, opp));
                 count++;
             }, s.interval * 1000 / 60);
 
@@ -278,7 +264,7 @@ class Fighter {
 
     hit(dmg, eff, time) {
         if (this.status.invuln > 0) return;
-        
+
         if (this.passive === 'teleport_heal' && dmg > 0) {
             if (Math.random() < 0.2) {
                 this.x = Math.random() * 800 + 50; this.hp = Math.min(this.hp + 20, this.maxHp);
@@ -286,7 +272,7 @@ class Fighter {
                 visuals.push({ t: "피했죠? +20HP", x: this.x, y: this.y - 40, life: 60, c: "lime" }); return;
             }
         }
-        
+
         if ((this.charKey === 'NH2' || this.passive === 'nh2_passive') && dmg > 0) {
             let reduction = dmg * 0.5;
             this.cd.e = Math.max(0, this.cd.e - reduction); this.cd.r = Math.max(0, this.cd.r - reduction); this.cd.s = Math.max(0, this.cd.s - reduction);
@@ -299,7 +285,7 @@ class Fighter {
         this.hp -= dmg;
         if (this.charKey === 'EH') this.ehCharge += dmg * 1.5;
         visuals.push({ t: `-${Math.ceil(dmg)}`, x: this.x + Math.random() * 20, y: this.y, life: 60, c: "red" });
-        
+
         if (eff) {
             if (typeof this.status[eff] !== 'undefined') this.status[eff] = time;
             if (eff.includes('slow')) visuals.push({ t: "SLOW!", x: this.x, y: this.y - 50, life: 60, c: "cyan" });
@@ -315,16 +301,16 @@ class Fighter {
             ctx.fillStyle = "white"; ctx.fillRect(this.x, this.y, this.w, this.h);
         } else {
             if (this.loaded) {
-                let img = this.sprites.idle; 
-                if (!this.isGrounded) { img = this.sprites.walk1; } 
+                let img = this.sprites.idle;
+                if (!this.isGrounded) { img = this.sprites.walk1; }
                 else if (Math.abs(this.vx) > 0.5) { img = (this.animFrame === 0 ? this.sprites.walk1 : this.sprites.walk2); }
-                
+
                 if (img) {
-                    const scale = (this.h / img.height) * 1.3; 
+                    const scale = (this.h / img.height) * 1.3;
                     const drawWidth = img.width * scale;
                     const drawHeight = img.height * scale;
                     const offsetX = (this.w - drawWidth) / 2;
-                    const offsetY = (this.h - drawHeight); 
+                    const offsetY = (this.h - drawHeight);
                     ctx.save();
                     if (this.facing === -1) {
                         ctx.translate(this.x + this.w, this.y); ctx.scale(-1, 1);
@@ -369,49 +355,41 @@ class Projectile {
     update(opp) {
         if (!this.active) return;
         this.life--; if (this.life <= 0) this.active = false;
-        
-        // 궤적 생성
-        this.trail.push({ x: this.x, y: this.y }); 
+
+        this.trail.push({ x: this.x, y: this.y });
         if (this.trail.length > 10) this.trail.shift();
-        
-        // ★ [수정] 유도탄 로직 강화
+
         if (this.homing && this.target) {
-            // 1. JH(패드립) 스킬: 기존처럼 약한 유도 유지 (글자 꺾임 효과)
-            if (this.info.visual && JH_LETTERS.includes(this.info.visual)) { 
-                let dx = this.target.x - this.x; 
-                let dy = (this.target.y + 30) - this.y; 
-                this.vx += (dx > 0 ? 0.2 : -0.2); 
-                this.vy += (dy > 0 ? 0.2 : -0.2); 
-                // 속도 제한
+            if (this.info.visual && JH_LETTERS.includes(this.info.visual)) {
+                let dx = this.target.x - this.x;
+                let dy = (this.target.y + 30) - this.y;
+                this.vx += (dx > 0 ? 0.2 : -0.2);
+                this.vy += (dy > 0 ? 0.2 : -0.2);
                 this.vx = Math.min(Math.max(this.vx, -12), 12);
-            } 
-            // 2. ZH V2 (총알/유도탄) 등 강력한 유도탄
-            else { 
+            }
+            else {
                 const dx = (this.target.x + this.target.w / 2) - this.x;
                 const dy = (this.target.y + this.target.h / 2) - this.y;
                 const angle = Math.atan2(dy, dx);
-                
-                // 유도 성능: 꺾이는 속도 조절 (0.1: 느림 ~ 1.0: 즉시)
-                // 여기서는 매우 강력하게 따라가도록 설정
-                const speed = 7.2; // 탄속
-                
-                // 현재 벡터를 목표 각도로 부드럽게(혹은 급격하게) 변경
+
+                const speed = 7.2;
+
                 this.vx = Math.cos(angle) * speed;
                 this.vy = Math.sin(angle) * speed;
             }
         }
-        
+
         this.x += this.vx; this.y += (this.vy || 0);
 
-        if (this.x < opp.x + opp.w && this.x + 20 > opp.x && this.y < opp.y + opp.h && this.y + 20 > opp.y) { 
-            opp.hit(this.dmg, this.info.effect, this.info.time); 
+        if (this.x < opp.x + opp.w && this.x + 20 > opp.x && this.y < opp.y + opp.h && this.y + 20 > opp.y) {
+            opp.hit(this.dmg, this.info.effect, this.info.time);
             if (this.info.effect === 'pull_to_owner') {
                 opp.status.grabbed = 120; opp.grabber = this.owner;
                 opp.grabSpeed = this.info.speed;
                 opp.hit(dmg, 'root', 120);
                 visuals.push({ t: "으딜 나대!", x: opp.x, y: opp.y - 50, life: 60, c: "yellow" });
             }
-            this.active = false; 
+            this.active = false;
         }
     }
     draw() { ctx.beginPath(); ctx.strokeStyle = this.color; ctx.lineWidth = 5; this.trail.forEach((p, i) => { ctx.lineWidth = i / 2; ctx.lineTo(p.x, p.y); }); ctx.stroke(); drawVisual(ctx, this.info.visual, this.x, this.y, 20, 20, this.facing, this.color, true); }

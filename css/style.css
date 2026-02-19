@@ -297,7 +297,7 @@ input[type="password"] {
     background: #222;
     border: 2px solid #555;
     margin-bottom: 5px;
-    position: relative; /* 부모 기준 설정 */
+    position: relative;
     overflow: hidden;
     border-radius: 4px;
 }
@@ -310,17 +310,17 @@ input[type="password"] {
 
 .hp-text {
     position: absolute;
-    top: 0;          /* top 5px에서 0으로 변경하여 높이 중앙 맞춤 */
-    left: 0;         /* 왼쪽 0 */
-    right: 0;        /* 오른쪽 0 */
-    bottom: 0;       /* 아래 0 -> 사방을 0으로 당김 */
-    display: flex;   /* 플렉스 박스로 내용물 중앙 정렬 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
     text-shadow: 1px 1px 2px black;
     font-size: 16px;
-    z-index: 10;     /* 게이지바보다 위에 표시 */
+    z-index: 10;
     color: white;
 }
 
@@ -391,8 +391,8 @@ input[type="password"] {
 
 #global-tooltip {
     display: none;
-    position: fixed; /* 스크롤이나 부모 요소 상관없이 화면 기준 고정 */
-    z-index: 10000;  /* 최상위 레이어 */
+    position: fixed;
+    z-index: 10000;
     
     width: 280px;
     background: rgba(0, 0, 0, 0.95);
@@ -401,13 +401,12 @@ input[type="password"] {
     padding: 15px;
     
     text-align: left;
-    pointer-events: none; /* 마우스가 툴팁에 걸리지 않게 함 */
+    pointer-events: none;
     box-shadow: 0 5px 25px rgba(0, 0, 0, 1);
     
     white-space: normal;
     word-break: keep-all;
     
-    /* 부드러운 등장 효과 */
     transition: opacity 0.1s;
 }
 

@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <title>PvP EXTREME</title>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div id="main-container">
-        <!-- 메인 메뉴 -->
         <div id="main-menu" class="screen">
             <h1>PvP<span style="font-size:20px; vertical-align:middle; color:cyan;">EXTREME</span></h1>
             <div class="btn" onclick="startGameMode('local')">친구와 하기 (로컬)</div>
@@ -16,10 +17,10 @@
             <div class="btn" onclick="openSettings()">키 설정</div>
         </div>
 
-        <!-- 온라인 메뉴 -->
         <div id="online-menu" class="screen hidden">
             <h1>온라인 대전</h1>
-            <div id="online-status" style="margin-bottom: 20px; color: cyan; font-weight: bold; font-size: 18px;">대기 중...</div>
+            <div id="online-status" style="margin-bottom: 20px; color: cyan; font-weight: bold; font-size: 18px;">대기
+                중...</div>
             <div class="tab-menu">
                 <div id="tab-create" class="tab-btn active" onclick="switchTab('create')">방 만들기</div>
                 <div id="tab-join" class="tab-btn" onclick="switchTab('join')">방 들어가기</div>
@@ -49,7 +50,6 @@
             <div class="btn" onclick="location.reload()" style="background: #7f8c8d; margin-top:20px;">뒤로 가기</div>
         </div>
 
-        <!-- 호스트 대기 화면 -->
         <div id="host-wait-screen" class="screen hidden">
             <h1 id="host-room-name">방 제목</h1>
             <h2 style="color:lime">참가자 대기 중...</h2>
@@ -57,7 +57,6 @@
             <div class="btn" onclick="location.reload()" style="background: #c0392b;">방 없애기 (나가기)</div>
         </div>
 
-        <!-- 키 설정 -->
         <div id="settings-screen" class="screen hidden">
             <h1>키 설정</h1>
             <div id="key-config-list"></div>
@@ -65,7 +64,6 @@
             <div class="btn" onclick="resetSettings()" style="background:#c0392b">초기화</div>
         </div>
 
-        <!-- 캐릭터 선택 -->
         <div id="char-select-screen" class="screen hidden">
             <h1 id="select-title">캐릭터 선택</h1>
             <div id="select-timer"></div>
@@ -75,18 +73,17 @@
             </div>
         </div>
 
-        <!-- 맵 선택 -->
         <div id="map-select-screen" class="screen hidden">
             <h1>전장 선택</h1>
             <div class="map-grid" id="map-grid"></div>
         </div>
 
-        <!-- 게임 HUD -->
         <div id="hud">
             <div class="p-stat">
                 <div id="p1-name-display" class="p-name-tag" style="color:cyan;">PLAYER 1</div>
                 <div class="hp-bar-bg">
-                    <div id="p1-hp" class="hp-bar-fill" style="background: linear-gradient(90deg, #00c6ff, #0072ff);"></div>
+                    <div id="p1-hp" class="hp-bar-fill" style="background: linear-gradient(90deg, #00c6ff, #0072ff);">
+                    </div>
                     <span class="hp-text" id="p1-hp-text">100</span>
                 </div>
                 <div class="cooldowns">
@@ -98,7 +95,8 @@
             <div class="p-stat" style="text-align: right;">
                 <div id="p2-name-display" class="p-name-tag" style="color:orange;">PLAYER 2</div>
                 <div class="hp-bar-bg">
-                    <div id="p2-hp" class="hp-bar-fill" style="background: linear-gradient(90deg, #f12711, #f5af19); float: right;"></div>
+                    <div id="p2-hp" class="hp-bar-fill"
+                        style="background: linear-gradient(90deg, #f12711, #f5af19); float: right;"></div>
                     <span class="hp-text" id="p2-hp-text">100</span>
                 </div>
                 <div class="cooldowns" style="justify-content: flex-end;">
@@ -121,7 +119,6 @@
         </div>
     </div>
 
-    <!-- 순서 중요! -->
     <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/classes.js"></script>
@@ -131,4 +128,5 @@
     <script src="js/game.js"></script>
     <script src="js/main.js"></script>
 </body>
+
 </html>
