@@ -1,0 +1,450 @@
+body {
+    background-color: #050505;
+    color: white;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Verdana', sans-serif;
+    user-select: none;
+}
+
+#main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    position: relative;
+}
+
+canvas {
+    border: 4px solid #fff;
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+    display: none;
+    background-color: #000;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #111;
+    z-index: 10;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1 {
+    font-size: 50px;
+    color: #f1c40f;
+    text-shadow: 0 0 20px orange;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.btn {
+    padding: 12px 25px;
+    font-size: 20px;
+    cursor: pointer;
+    background: #2c3e50;
+    border: 2px solid #fff;
+    color: white;
+    border-radius: 8px;
+    margin: 10px;
+    transition: 0.2s;
+    font-weight: bold;
+    width: 300px;
+    text-align: center;
+}
+
+.btn:hover {
+    background: #fff;
+    color: #000;
+    transform: scale(1.05);
+}
+
+.btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #555;
+    pointer-events: none;
+}
+
+.btn.ready {
+    background: #2ecc71;
+    border-color: #2ecc71;
+}
+
+.input-group {
+    margin: 10px 0;
+    text-align: center;
+}
+
+.input-group label {
+    display: block;
+    color: #aaa;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 10px;
+    font-size: 18px;
+    width: 280px;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background: #222;
+    color: white;
+}
+
+.tab-menu {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background: #333;
+    border: 1px solid #555;
+    padding: 10px 30px;
+    cursor: pointer;
+    color: #888;
+}
+
+.tab-btn.active {
+    background: #f1c40f;
+    color: black;
+    font-weight: bold;
+    border-color: #f1c40f;
+}
+
+.char-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    max-width: 1000px;
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.char-card {
+    background: #222;
+    border: 2px solid #444;
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 140px;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    border-radius: 8px;
+    position: relative;
+}
+
+.char-card:hover {
+    transform: scale(1.05);
+    background: #333;
+    z-index: 5;
+    border-color: #888;
+}
+
+.char-card.selected {
+    border-color: lime;
+    box-shadow: 0 0 15px lime;
+    background: #2ecc71;
+    color: black;
+}
+
+.char-card.p1-selected {
+    border-color: cyan;
+    box-shadow: 0 0 15px cyan;
+}
+
+.char-card.p2-selected {
+    border-color: orange;
+    box-shadow: 0 0 15px orange;
+}
+
+#select-timer {
+    font-size: 60px;
+    font-weight: bold;
+    color: red;
+    margin: 10px;
+    font-family: 'Impact';
+    min-height: 70px;
+}
+
+#select-status {
+    font-size: 24px;
+    color: cyan;
+    margin-bottom: 10px;
+    height: 30px;
+}
+
+.map-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1000px;
+}
+
+.map-card {
+    width: 180px;
+    height: 120px;
+    border: 3px solid #555;
+    cursor: pointer;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.map-card:hover {
+    transform: scale(1.1);
+    border-color: white;
+}
+
+.map-preview {
+    width: 100%;
+    height: 100%;
+}
+
+.map-name {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 5px 0;
+    font-weight: bold;
+    text-align: center;
+    font-size: 14px;
+}
+
+#key-config-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.key-row {
+    display: flex;
+    justify-content: space-between;
+    width: 400px;
+    margin: 8px 0;
+    background: #222;
+    padding: 10px;
+    border-radius: 5px;
+    align-items: center;
+    border: 1px solid #444;
+}
+
+.key-btn {
+    background: #444;
+    padding: 5px 15px;
+    cursor: pointer;
+    border: 1px solid #777;
+    border-radius: 3px;
+    min-width: 80px;
+    text-align: center;
+}
+
+.key-btn.listening {
+    background: #e74c3c;
+    color: white;
+    animation: blink 0.5s infinite;
+}
+
+#hud {
+    position: absolute;
+    top: 20px;
+    width: 900px;
+    display: none;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.p-stat {
+    width: 42%;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #444;
+}
+
+.p-name-tag {
+    font-size: 18px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    text-shadow: 0 0 5px currentColor;
+}
+
+.hp-bar-bg {
+    width: 100%;
+    height: 30px;
+    background: #222;
+    border: 2px solid #555;
+    margin-bottom: 5px;
+    position: relative; /* 부모 기준 설정 */
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    width: 100%;
+    transition: width 0.1s ease-out;
+}
+
+.hp-text {
+    position: absolute;
+    top: 0;          /* top 5px에서 0으로 변경하여 높이 중앙 맞춤 */
+    left: 0;         /* 왼쪽 0 */
+    right: 0;        /* 오른쪽 0 */
+    bottom: 0;       /* 아래 0 -> 사방을 0으로 당김 */
+    display: flex;   /* 플렉스 박스로 내용물 중앙 정렬 */
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+    font-size: 16px;
+    z-index: 10;     /* 게이지바보다 위에 표시 */
+    color: white;
+}
+
+.cooldowns {
+    display: flex;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.cd-box {
+    background: #333;
+    color: #ddd;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    width: 30%;
+    text-align: center;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
+
+#overlay-text {
+    font-size: 80px;
+    font-weight: bold;
+    font-family: 'Impact', sans-serif;
+    color: white;
+    text-shadow: 0 0 30px red;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#overlay-subtext {
+    font-size: 24px;
+    color: #aaa;
+    margin-bottom: 30px;
+    display: none;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+
+#global-tooltip {
+    display: none;
+    position: fixed; /* 스크롤이나 부모 요소 상관없이 화면 기준 고정 */
+    z-index: 10000;  /* 최상위 레이어 */
+    
+    width: 280px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 15px;
+    
+    text-align: left;
+    pointer-events: none; /* 마우스가 툴팁에 걸리지 않게 함 */
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 1);
+    
+    white-space: normal;
+    word-break: keep-all;
+    
+    /* 부드러운 등장 효과 */
+    transition: opacity 0.1s;
+}
+
+#global-tooltip h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: gold;
+    text-align: center;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+}
+
+.skill-row {
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #ddd;
+}
+
+.skill-row strong {
+    color: #00ffff;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.skill-desc {
+    color: #bbb;
+    font-size: 12px;
+}
+
+.passive-box {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed #666;
+    color: #e67e22;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1.4;
+}
